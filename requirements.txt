@@ -1,5 +1,5 @@
 gpxpy
 psycopg2
 python-dotenv
-
-
+postgis
+geopandas

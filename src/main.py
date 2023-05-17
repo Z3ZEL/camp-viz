@@ -2,18 +2,30 @@ import gpxpy
 import gpxpy.gpx
 import os
 import psycopg2
+import sys
 from dotenv import load_dotenv
+
+## LOCAL IMPORTS
+from log import Log
+from data_updater import DataUpdater
+
 gpx_file = open('input/explore.gpx', 'r')
 gpx = gpxpy.parse(gpx_file)
 
 
-for waypoint in gpx.waypoints:
-    print('waypoint {0} -> ({1},{2})'.format(waypoint.name, waypoint.latitude, waypoint.longitude))
 
 
-def main():
+def main(args):
+    #CHECK VERBOSE OPTIONS
+    verbose = False
+    if "-v" in args:
+        verbose = True
+    
+    logger = Log(verbose=verbose, header="[MAIN]")
+
     #LOAD DOTENV
     load_dotenv()
+
 
     host = os.getenv("PGHOST")
     database = os.getenv("PGDATABASE")
@@ -22,12 +34,11 @@ def main():
     
 
     #PRINT ENVIRONMENT VARIABLES
-    print("--------------------")
-    print("POSTGRES_HOST: " + host)
-    print("POSTGRES_DB: " + database)
-    print("POSTGRES_USER: " + user)
-
-    print("--------------------")
+    logger.print("--------------------")
+    logger.print("POSTGRES_HOST: " + host)
+    logger.print("POSTGRES_DB: " + database)
+    logger.print("POSTGRES_USER: " + user)
+    logger.print("--------------------")
 
     ## Connect to postgresql
     conn = psycopg2.connect(
@@ -39,11 +50,18 @@ def main():
 
     # CHECK CONNECTION
     if conn:
-        print("Connection established")
+        logger.printAnyway("Connection established")
     else:
-        print("Connection not established")
-        
+        logger.error("Connection not established")
+    
+
+    # CREATE DATA UPDATER
+    updater = DataUpdater(conn, verbose=verbose)
+    updater.update(gpx)
+
+
+
 
 
 if __name__ == '__main__':
-    main()
+    main(sys.argv[1:])
