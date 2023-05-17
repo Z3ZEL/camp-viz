@@ -31,5 +31,19 @@
                 "isDefault": true
             }
         },
+        //RUN MAIN PYTHON IN DEV MODE
+        {
+            "label": "Run Main Python in Dev Mode",
+            "type": "shell",
+            "command": "python",
+            "args": [
+                "${workspaceFolder}/src/main.py",
+                "-v"
+            ],
+            "group": {
+                "kind": "build",
+                "isDefault": true
+            }
+        },
     ]
 }
