@@ -57,7 +57,10 @@ def main(args):
 
     # CREATE DATA UPDATER
     updater = DataUpdater(conn, verbose=verbose)
+    # UPDATE DATA
     updater.update(gpx)
+
+
 
 
 
