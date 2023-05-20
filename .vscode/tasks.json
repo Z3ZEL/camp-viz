@@ -1,0 +1,35 @@
+{
+    // See https://go.microsoft.com/fwlink/?LinkId=733558
+    // for the documentation about the tasks.json format
+    "version": "2.0.0",
+    "tasks": [
+        //RUN MAIN PYTHON IN SRC DIRECTORY
+        {
+            "label": "Run Main Python",
+            "type": "shell",
+            "command": "python",
+            "args": [
+                "${workspaceFolder}/src/main.py"
+            ],
+            "group": {
+                "kind": "build",
+                "isDefault": true
+            }
+        },
+        //UPDATE REQUIREMENTS
+        {
+            "label": "Update Requirements",
+            "type": "shell",
+            "command": "pip",
+            "args": [
+                "install",
+                "-r",
+                "${workspaceFolder}/requirements.txt"
+            ],
+            "group": {
+                "kind": "build",
+                "isDefault": true
+            }
+        },
+    ]
+}
