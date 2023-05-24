@@ -1,15 +1,16 @@
-from log import Log
+from log import Logger
 import gpxpy
 import gpxpy.gpx
+from psycopg2.extensions import connection
 import psycopg2
 from shapely.geometry import Point
 
-class DataUpdater():
-
-    def __init__(self, conn: psycopg2.connection, verbose=False):
+class DataUpdater(Logger):
+    def __init__(self, conn: connection, verbose=False):
+        Logger.__init__(self, verbose=verbose, header="[DATA UPDATER]")
         self.conn = conn;
         self.cur = conn.cursor()
-        self.logger = Log(verbose=verbose, header="[DATA UPDATER]")
+        self.logger.print("DataUpdater initialized")
 
     def update(self, gpx: gpxpy.gpx.GPX):
         '''
@@ -23,7 +24,7 @@ class DataUpdater():
     
         '''
         ##CHECK IF CONN IS GOOD TYPE AND OPEN
-        if not isinstance(self.conn, psycopg2.connection):
+        if not isinstance(self.conn, connection):
             self.logger.error("Connection is not a psycopg2 connection")
             return -1
         if self.conn.closed:
@@ -40,10 +41,14 @@ class DataUpdater():
         exists = self.cur.fetchone()[0]
         if not exists:
             # CREATE waypoints TABLE
-            self.logger.print("Creating waypoints table")
-            self.cur.execute("CREATE TABLE waypoints (id SERIAL PRIMARY KEY, name VARCHAR(255), description VARCHAR(255), geom GEOMETRY(Point, 4326))")
-            self.conn.commit()
-
+            try:
+                self.logger.print("Creating waypoints table")
+                self.cur.execute("CREATE TABLE waypoints (id SERIAL PRIMARY KEY, name VARCHAR(255), description VARCHAR(255), geom GEOMETRY(Point, 4326))")
+                self.conn.commit()
+            except (psycopg2.Error) as e:
+                self.logger.error("Error creating waypoints table.")
+                self.logger.error(e.pgerror)
+                return -1    
 
        
         # INSERT WAYPOINTS ONLY NEW WAYPOINTS INTO waypoints TABLE 
@@ -63,7 +68,8 @@ class DataUpdater():
                     self.cur.execute("INSERT INTO waypoints (name, description, geom) VALUES (%s, %s, ST_GeomFromText(%s,4326))", (waypoint.name, waypoint.description, point.wkt))
                     self.conn.commit()
                 except (psycopg2.Error) as e:
-                    self.logger.error("Error inserting waypoint: " + e)
+                    self.logger.error("Error inserting waypoint.")
+                    self.logger.error(e.pgerror)
                     return -1
                 updated = False
             

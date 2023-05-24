@@ -8,6 +8,7 @@ from dotenv import load_dotenv
 ## LOCAL IMPORTS
 from log import Log
 from data_updater import DataUpdater
+from obj.camp_data import CampData
 
 gpx_file = open('input/explore.gpx', 'r')
 gpx = gpxpy.parse(gpx_file)
@@ -41,24 +42,30 @@ def main(args):
     logger.print("--------------------")
 
     ## Connect to postgresql
-    conn = psycopg2.connect(
-        host=host,
-        database=database,
-        user=user,
-        password=password
-    )
+    # conn = psycopg2.connect(
+    #     host=host,
+    #     database=database,
+    #     user=user,
+    #     password=password
+    # )
 
     # CHECK CONNECTION
-    if conn:
-        logger.printAnyway("Connection established")
-    else:
-        logger.error("Connection not established")
-    
+    # if conn:
+    #     logger.printAnyway("Connection established")
+    # else:
+    #     logger.error("Connection not established")
 
-    # CREATE DATA UPDATER
-    updater = DataUpdater(conn, verbose=verbose)
-    # UPDATE DATA
-    updater.update(gpx)
+    # CREATE DATA OBJECT
+    data = CampData(verbose=verbose)
+    code = data.fetchData(data.fetch_method_local) 
+    if code != 0:
+        if(code == -2):
+            data.createData(data.create_method_local)
+        return -1
+    # # CREATE DATA UPDATER
+    # updater = DataUpdater(conn, verbose=verbose)
+    # # UPDATE DATA
+    # updater.update(gpx)
 
 
 
