@@ -41,31 +41,40 @@ def main(args):
     logger.print("POSTGRES_USER: " + user)
     logger.print("--------------------")
 
-    ## Connect to postgresql
-    # conn = psycopg2.connect(
-    #     host=host,
-    #     database=database,
-    #     user=user,
-    #     password=password
-    # )
+    # Connect to postgresql
+    conn = psycopg2.connect(
+        host=host,
+        database=database,
+        user=user,
+        password=password
+    )
 
     # CHECK CONNECTION
-    # if conn:
-    #     logger.printAnyway("Connection established")
-    # else:
-    #     logger.error("Connection not established")
+    if conn:
+        logger.printAnyway("Connection established")
+    else:
+        logger.error("Connection not established")
 
     # CREATE DATA OBJECT
-    data = CampData(verbose=verbose)
-    code = data.fetchData(data.fetch_method_local) 
+  
+
+
+    data = CampData(conn=conn,verbose=verbose)
+
+    
+    fetch_method = data.fetch_method_database
+    create_method = data.create_method_database
+    save_method = data.save_method_database
+
+    code = data.fetchData(fetch_method) 
     if code != 0:
         if(code == -2):
-            data.createData(data.create_method_local)
-        return -1
+            data.createData(create_method)
+    # data.printData()
     # # CREATE DATA UPDATER
-    # updater = DataUpdater(conn, verbose=verbose)
-    # # UPDATE DATA
-    # updater.update(gpx)
+    updater = DataUpdater(data, verbose=verbose)
+    # # # UPDATE DATA
+    updater.updateFromGpx(gpx, method=save_method)
 
 
 
