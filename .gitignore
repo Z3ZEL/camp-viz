@@ -10,3 +10,4 @@ cookie.json
 */.mypy_cache/
 */.pytype/
 
+.env
