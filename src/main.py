@@ -58,9 +58,9 @@ def main(args):
     # CREATE DATA OBJECT
   
     from save_methods.save_local import SaveLocal
-    # from save_methods import SaveDatabase
+    from save_methods.save_database import SaveDatabase
 
-    method = SaveLocal(verbose=verbose)
+    method = SaveDatabase(conn, verbose=verbose)
 
     data = CampData(method=method,verbose=verbose)
 
@@ -76,6 +76,8 @@ def main(args):
     updater = DataUpdater(data, verbose=verbose)
     # # # UPDATE DATA
     updater.updateFromGpx(gpx)
+    
+    data.saveData()
 
 
 

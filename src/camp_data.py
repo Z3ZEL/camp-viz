@@ -32,6 +32,8 @@ class Camp():
         return self.lon
     def getElevation(self):
         return self.elevation
+    def getCopy(self):
+        return Camp(self.name, self.description, self.lat, self.lon, self.elevation)
         ## STATIC
     @staticmethod
     def isCampSame(camp1, camp2) -> bool:
@@ -52,6 +54,7 @@ class CampData(Logger):
         Logger.__init__(self, verbose=verbose, header="[CAMP DATA]")
         self.method = method
         self.logger.print("CampData initialized")
+        self.modifiedQueue = []
     
     def addCamp(self, camp: Camp):
         '''Add camp to data'''
@@ -60,13 +63,18 @@ class CampData(Logger):
             return -1
 
         self.camps.append(camp)
+        self.modifiedQueue.append(("add", camp))
         self.size += 1
-        self.isDirty = True
     def removeCamp(self, camp: Camp):
         '''Remove camp from data'''
         self.camps.remove(camp)
+        self.modifiedQueue.append(("remove", camp))
         self.size -= 1
-        self.isDirty = True
+    def modifyCamp(self, camp: Camp, newCamp: Camp):
+        '''Modify camp from data'''
+        self.camps.remove(camp)
+        self.camps.append(newCamp)
+        self.modifiedQueue.append(("modify", newCamp))
 
     def createData(self):
         '''Create data file on database'''
@@ -132,5 +140,6 @@ class CampData(Logger):
     def getCamps(self):
         return self.camps
     def isDirty(self):
-        return self.isDirty
-    
+        return len(self.modifiedQueue) > 0
+    def getModifiedQueue(self):
+        return self.modifiedQueue

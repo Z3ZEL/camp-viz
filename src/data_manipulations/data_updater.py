@@ -15,7 +15,7 @@ class DataUpdater(Logger):
         self.data = data
         self.logger.print("DataUpdater initialized")        
 
-    def updateFromGpx(self, gpx: gpxpy.gpx.GPX, method=None):
+    def updateFromGpx(self, gpx: gpxpy.gpx.GPX):
         '''
         Update database object with gpx data
         
@@ -41,9 +41,6 @@ class DataUpdater(Logger):
         if upToDate:
             self.logger.printAnyway("Data is already up to date")
             return 1
-        
-        if method is not None:
-            return self.data.saveData(method)
         else:
             return 0
         

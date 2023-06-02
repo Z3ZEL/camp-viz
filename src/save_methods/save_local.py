@@ -4,10 +4,10 @@ import json
 from save_methods.save_method import SaveMethod;
 
 sys.path.append("..")
-# from save_method import SaveMethod
 
 
 class SaveLocal(SaveMethod):
+    
     def __init__(self, verbose=False):
         super().__init__(verbose)
         self.logger.print("SaveLocal initialized")
@@ -37,14 +37,27 @@ class SaveLocal(SaveMethod):
             self.logger.error("Error while creating file")
             return -1
     def save_method(self, data) -> int:
+        from camp_data import Camp
         self.logger.print("Saving data to local file")
         # SAVE DATA TO LOCAL FILE
-        data = {"size":data.getSize(),"camps": [c.toDict() for c in data.getCamps()]}
-        try:
+        campsToSave = data.getModifiedQueue()
+        with open('data/camp_data.json') as json_file:
+            # READ JSON FILE
+            data = json.load(json_file)
+            # UPDATE DATA
+            for (action, camp) in campsToSave:
+                if action == "add":
+                    data["camps"].append(camp)
+                elif action == "remove":
+                    data["camps"].remove(camp)
+                elif action == "update":
+                    for i in range(len(data["camps"])):
+                        if Camp.isCampSame(data["camps"][i], camp):
+                            data["camps"][i] = camp
+                            break
+            data["size"] = len(data["camps"])
+            # WRITE JSON FILE
             with open('data/camp_data.json', 'w') as outfile:
-                # WRITE JSON FILE
                 json.dump(data, outfile)
                 return 0
-        except Exception as e:
-            self.logger.error("Error while saving file : " + str(e))
-            return -1
+        return -1

@@ -6,14 +6,14 @@ import psycopg2
 
 sys.path.append("..")
 
-from save_method import SaveMethod
-from camp_data import CampData
+from save_methods.save_method import SaveMethod
+
 
 class SaveDatabase(SaveMethod):
     def __init__(self,conn: connection , verbose=False):
         super().__init__(verbose)
         self.conn = conn
-        self.cursor = conn.cursor()
+        self.cur = conn.cursor()
         self.logger.print("SaveDatabase initialized")
     
     def fetch_method(self) -> tuple:
@@ -71,31 +71,33 @@ class SaveDatabase(SaveMethod):
             self.logger.error(e.pgerror)
             return -1   
         return 0
+    from camp_data import CampData
     def save_method(self, data: CampData) -> int:   
         #Check connection
         if not self.conn:
             self.logger.error("Connection not established")
             return -3
-        
+
         # RETRIEVE DATA FROM DATABASE
         self.logger.print("Saving data to database")
         upToDate = True
         try:
-            for c in data.getCamps():
-                # CHECK IF CAMP EXISTS
-                exists = False
-                self.cur.execute('SELECT id FROM waypoints WHERE name = %s', (c.getName(),))
-                self.conn.commit()
-                exists = self.cur.fetchone()
-                if not exists:
-
-                    # CREATE CAMP
-                    point = Point(c.getLon(), c.getLat(), c.getElevation());
-                    self.cur.execute('INSERT INTO waypoints (name, description, geom) VALUES (%s, %s, ST_GeomFromText(%s, 4326))', (c.getName(), c.getDescription(), point.wkt))
+            for (action, camp) in data.getModifiedQueue():
+                point = Point(camp.lon, camp.lat, camp.elevation)
+                if action == "add":
+                    self.cur.execute("INSERT INTO waypoints (name, description, geom) VALUES (%s, %s, ST_GeomFromText(%s, 4326))", (camp.name, camp.description, point.wkt))
                     self.conn.commit()
                     upToDate = False
-                    self.logger.print("Camp " + c.getName() + " uploaded")
-            
+                elif action == "remove":
+                    self.cur.execute("DELETE FROM waypoints WHERE geom = T_GeomFromText(%s, 4326)", (point.wkt))
+                    self.conn.commit()
+                    upToDate = False
+                elif action == "modify":
+                    # UPDATE THE CAMP
+                    self.cur.execute("UPDATE waypoints SET name = %s, description = %s WHERE geom = ST_GeomFromText(%s, 4326)", (camp.name, camp.description, point.wkt))
+                    self.conn.commit()
+                    upToDate = False
+                self.logger.print("Camp " + camp.name + " has been pushed with the following action : " + action)
         except (psycopg2.Error) as e:
             self.logger.error("Error saving data to waypoints table.")
             self.logger.error(e.pgerror)
