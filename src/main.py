@@ -7,8 +7,8 @@ from dotenv import load_dotenv
 
 ## LOCAL IMPORTS
 from log import Log
-from data_updater import DataUpdater
-from obj.camp_data import CampData
+from data_manipulations.data_updater import DataUpdater
+from camp_data import CampData
 
 gpx_file = open('input/explore.gpx', 'r')
 gpx = gpxpy.parse(gpx_file)
@@ -57,24 +57,25 @@ def main(args):
 
     # CREATE DATA OBJECT
   
+    from save_methods.save_local import SaveLocal
+    # from save_methods import SaveDatabase
 
+    method = SaveLocal(verbose=verbose)
 
-    data = CampData(conn=conn,verbose=verbose)
+    data = CampData(method=method,verbose=verbose)
 
     
-    fetch_method = data.fetch_method_database
-    create_method = data.create_method_database
-    save_method = data.save_method_database
 
-    code = data.fetchData(fetch_method) 
+
+    code = data.fetchData() 
     if code != 0:
         if(code == -2):
-            data.createData(create_method)
+            data.createData()
     # data.printData()
     # # CREATE DATA UPDATER
     updater = DataUpdater(data, verbose=verbose)
     # # # UPDATE DATA
-    updater.updateFromGpx(gpx, method=save_method)
+    updater.updateFromGpx(gpx)
 
 
 

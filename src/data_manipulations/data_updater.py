@@ -4,7 +4,10 @@ import gpxpy.gpx
 from psycopg2.extensions import connection
 from shapely.geometry import Point
 
-from obj.camp_data import CampData, Camp
+import sys
+sys.path.append("..")
+
+from camp_data import CampData, Camp
 
 class DataUpdater(Logger):
     def __init__(self, data: CampData, verbose=False):
@@ -43,11 +46,4 @@ class DataUpdater(Logger):
             return self.data.saveData(method)
         else:
             return 0
-        
-       
-
-
-        
-
-
         
