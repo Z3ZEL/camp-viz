@@ -40,27 +40,29 @@ def main(args):
     logger.print("POSTGRES_DB: " + database)
     logger.print("POSTGRES_USER: " + user)
     logger.print("--------------------")
-
-    # Connect to postgresql
-    conn = psycopg2.connect(
-        host=host,
-        database=database,
-        user=user,
-        password=password
-    )
-
-    # CHECK CONNECTION
-    if conn:
-        logger.printAnyway("Connection established")
-    else:
-        logger.error("Connection not established")
+    try:
+        # Connect to postgresql
+        conn = psycopg2.connect(
+            host=host,
+            database=database,
+            user=user,
+            password=password
+        )
+        # CHECK CONNECTION
+        if conn:
+            logger.printAnyway("Connection established")
+        else:
+            logger.error("Connection not established")
+    except (psycopg2.Error) as e:
+        pass
+        
 
     # CREATE DATA OBJECT
   
     from save_methods.save_local import SaveLocal
     from save_methods.save_database import SaveDatabase
 
-    method = SaveDatabase(conn, verbose=verbose)
+    method = SaveLocal(verbose=verbose)#SaveDatabase(conn, verbose=verbose)
 
     data = CampData(method=method,verbose=verbose)
 

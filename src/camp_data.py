@@ -78,7 +78,8 @@ class CampData(Logger):
 
     def createData(self):
         '''Create data file on database'''
-        return self.method.create_method(self)
+        self.__initData__({"size":0, "camps":[]})
+        return self.method.create_method()
     def fetchData(self):
         '''Fetch data from database'''
         (code,data) = self.method.fetch_method()

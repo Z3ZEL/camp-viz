@@ -47,13 +47,13 @@ class SaveLocal(SaveMethod):
             # UPDATE DATA
             for (action, camp) in campsToSave:
                 if action == "add":
-                    data["camps"].append(camp)
+                    data["camps"].append(camp.toDict())
                 elif action == "remove":
-                    data["camps"].remove(camp)
+                    data["camps"].remove(camp.toDict())
                 elif action == "update":
                     for i in range(len(data["camps"])):
                         if Camp.isCampSame(data["camps"][i], camp):
-                            data["camps"][i] = camp
+                            data["camps"][i] = camp.toDict()
                             break
             data["size"] = len(data["camps"])
             # WRITE JSON FILE
