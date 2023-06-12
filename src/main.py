@@ -13,6 +13,7 @@ from camp_data import CampData
 gpx_file = open('input/explore.gpx', 'r')
 gpx = gpxpy.parse(gpx_file)
 
+from data_vis.data_vis_console import VisualizerConsole
 
 
 
@@ -62,7 +63,7 @@ def main(args):
     from save_methods.save_local import SaveLocal
     from save_methods.save_database import SaveDatabase
 
-    method = SaveLocal(verbose=verbose)#SaveDatabase(conn, verbose=verbose)
+    method = SaveDatabase(conn, verbose=verbose)#SaveLocal(verbose=verbose)#
 
     data = CampData(method=method,verbose=verbose)
 
@@ -75,14 +76,15 @@ def main(args):
             data.createData()
     # data.printData()
     # # CREATE DATA UPDATER
-    updater = DataUpdater(data, verbose=verbose)
-    # # # UPDATE DATA
-    updater.updateFromGpx(gpx)
+    # updater = DataUpdater(data, verbose=verbose)
+    # # # # UPDATE DATA
+    # updater.updateFromGpx(gpx)
     
-    data.saveData()
+    # data.saveData()
 
 
-
+    vis = VisualizerConsole(data, verbose=verbose)
+    vis.loop()
 
 
 
