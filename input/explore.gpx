@@ -1,6 +1,6 @@
 <?xml version="1.0"?>
 <gpx xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.topografix.com/GPX/1/1 http://www.topografix.com/GPX/1/1/gpx.xsd" version="1.1" creator="http://www.delorme.com" xmlns="http://www.topografix.com/GPX/1/1">
-  <wpt lat="44.641806" lon="-0.073634">
+  <wpt lat="44.641816" lon="-0.073634">
     <ele>55.000</ele>
     <time>2022-05-23T10:28:29Z</time>
     <name>Camp 15-04-22</name>
