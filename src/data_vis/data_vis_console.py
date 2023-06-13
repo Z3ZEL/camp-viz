@@ -3,25 +3,30 @@ import os
 import sys 
 sys.argv.append('..')
 from util.text_format import color;
-from pynput import keyboard
+import termios, tty, select
+from data_manipulations.data_editor import DataEditor
+
+
 def cls():
-    #clear stdout
-    sys.stdout.write("\033[2J\033[1;1H")
-    #clear screen
-    os.system('cls' if os.name=='nt' else 'clear')
+    if os.name == 'posix':
+        _ = os.system('clear')
+    elif os.name == 'nt':
+        _ = os.system('cls')
+
+class state:
+    LISTING=0
+    EDITING=1
 
 class VisualizerConsole(Visualizer):
     def __init__(self, campData, verbose=False):
         Visualizer.__init__(self, campData, verbose=verbose)
         self.logger.print("VisualizerConsole initialized")
         self.selected = 0
+        self.state = state.LISTING
+        self.editor = DataEditor(campData, verbose=verbose)
 
-    def repaint(self) -> bool:
-        self.logger.print("Repainting console...")
-        if(not(self.verbose)):
-            cls()
+    def __print_listing__(self):
         data_camps = self.data.getCamps()
-
         camps = []
         for i in range(self.data.getSize()):
             camp = []
@@ -61,31 +66,141 @@ class VisualizerConsole(Visualizer):
         #data
         for i in range(len(camps)):
             print("|".join(camps[i]))
+    def __print_editing__(self):
+
+        camp = self.data.getCamps()[self.selected]
+
+        #Print header in bold and orange
+        print(color.BOLD + color.YELLOW + "Editing camp: " + camp.getName() + color.END)
+        print("1. Name: " + camp.getName())
+        print("2. Description: " + camp.getDescription())
+        print("-" * 20)
+
+        print(" Longitude: " + str(camp.getLon()))
+        print(" Latitude: " + str(camp.getLat()))
+        print(" Elevation: " + str(camp.getElevation()))
+
+        print()
+        print()
+
+        print("Press the number of the field you want to edit")
+        print("Press 's' to save") 
+
+
+
+    def repaint(self) -> bool:
+        self.logger.print("Repainting console...  (State : " + str(self.state) + ")")
+        if(not(self.verbose)):
+            cls()
+
+        if self.state == state.LISTING:
+            self.__print_listing__()
+        elif self.state == state.EDITING:
+            self.__print_editing__()
+        
 
 
         return True
-    
+                
+    def listen_for_text(self):
+        # Sauvegarde de la configuration du terminal
+            
+        # Lecture du texte entré par l'utilisateur
+        print("Enter text: (Press Enter to validate)")
+        user_input = ""
+        while True:
+            char = sys.stdin.read(1)
+            
+            # Si l'utilisateur appuie sur Entrée, on sort de la boucle
+            if char == '\r' or char == '\n':
+                break
+
+            elif char == '\x03':
+                # Si l'utilisateur appuie sur Ctrl+C, on interrompt le programme
+                raise KeyboardInterrupt()
+            else:
+                # Ajouter le caractère au texte de l'utilisateur
+                user_input += char
+                print(char, end='', flush=True)
+                
+        return user_input
+       
+
+
     def __navigation__(self, key):
-        if key == keyboard.Key.up:
+        if not(self.state == state.LISTING):
+            return
+        self.logger.print("Key pressed: " + str(key))
+        if key == '\x1b[A': #down arrow
             if self.selected > 0:
                 self.selected -= 1
-        elif key == keyboard.Key.down:
+        elif key == '\x1b[B': #up arrow
             if self.selected < self.data.getSize() - 1:
-                self.selected += 1 
-        elif key == keyboard.Key.esc:
-            self.listener.stop()
+                self.selected += 1
+    def __edit__(self, key):
+        if not(self.state == state.EDITING):
+            return
 
-        
-        self.repaint()
-        
+        #Check number
+        if key == '1':
+            self.logger.print("Editing name")
+            self.logger.print("Enter new name: ")
+            new_name = self.listen_for_text()
+            self.editor.modifyAttributeAt(self.selected, new_name,attribute="name")
+        elif key == '2':
+            self.logger.print("Editing description")
+            self.logger.print("Enter new description: ")
+            new_description = self.listen_for_text()
+            self.editor.modifyAttributeAt(self.selected, new_description,attribute="description")
 
 
     def loop(self) -> bool:
         self.repaint()
-        with keyboard.Listener(on_press=self.__navigation__) as listener:
-            self.listener = listener
-            listener.join()
+        # Create a keyboard listener
+        fd = sys.stdin.fileno()
+        old_settings = termios.tcgetattr(fd)
+        
+
+        # Boucle pour lire les touches jusqu'à obtenir la séquence d'échappement
+        while True:
+            try:
+                tty.setraw(sys.stdin.fileno())
+                key = sys.stdin.read(1)
+
+                # Vérifie si la touche est la séquence d'échappement (ASCII: \x1b)
+                if key == '\x1b':
+                    # Lecture des autres touches dans la séquence d'échappement
+                    key += sys.stdin.read(2)
+            
+                    self.__navigation__(key)
+                #Check ctrl+c
+                elif key == '\x03':
+                    break
+
+                # Check ENTER
+                elif key == '\r' and self.state == state.LISTING:
+                    self.state = state.EDITING
+
+                # Check backspace 
+                elif key == '\x7f' and self.state == state.EDITING:
+                    self.state = state.LISTING
+
+                self.__edit__(key)
+
+                    
 
 
-        return True
+                # Traitez la touche selon vos besoins
+                # Ici, nous imprimons simplement la touche
+                if key == 'q':
+                    break
+                    
+            finally:
+                # Rétablit les paramètres du terminal à leur état initial
+                termios.tcsetattr(fd, termios.TCSADRAIN, old_settings)
+                self.repaint()
+        
 
+
+           
+            
