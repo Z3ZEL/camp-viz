@@ -1,8 +1,8 @@
 from camp_data import CampData
 from log import Logger
-class Visualizer(Logger):
+class IVisualizer(Logger):
     def __init__(self, campData : CampData, verbose=False):
-        Logger.__init__(self,verbose=verbose, header="[VISUALIZER]")
+        Logger.__init__(self,verbose=verbose, header="[IVisualizer]")
         self.data = campData
 
     def repaint(self) -> bool:

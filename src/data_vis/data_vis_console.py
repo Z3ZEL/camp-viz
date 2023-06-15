@@ -1,4 +1,4 @@
-from data_vis.data_vis import Visualizer
+from data_vis.data_vis import IVisualizer
 import os
 import sys 
 sys.argv.append('..')
@@ -17,10 +17,10 @@ class state:
     LISTING=0
     EDITING=1
 
-class VisualizerConsole(Visualizer):
+class Visualizer(IVisualizer):
     def __init__(self, campData, verbose=False):
-        Visualizer.__init__(self, campData, verbose=verbose)
-        self.logger.print("VisualizerConsole initialized")
+        IVisualizer.__init__(self, campData, verbose=verbose)
+        self.logger.print("Visualizer initialized")
         self.selected = 0
         self.state = state.LISTING
         self.editor = DataEditor(campData, verbose=verbose)

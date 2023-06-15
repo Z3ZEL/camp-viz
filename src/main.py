@@ -13,7 +13,7 @@ from camp_data import CampData
 gpx_file = open('input/explore.gpx', 'r')
 gpx = gpxpy.parse(gpx_file)
 
-from data_vis.data_vis_console import VisualizerConsole
+from data_vis.data_vis_console import Visualizer
 
 
 
@@ -102,7 +102,7 @@ def main(args):
     # data.saveData()
 
 
-    vis = VisualizerConsole(data, verbose=verbose)
+    vis = Visualizer(data, verbose=verbose)
     vis.loop()
 
 
