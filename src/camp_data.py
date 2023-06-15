@@ -25,7 +25,7 @@ class Camp():
     def getName(self):
         return self.name
     def getDescription(self):
-        return self.description
+        return self.description if self.description != None else ""
     def getLat(self):
         return self.lat
     def getLon(self):
@@ -72,8 +72,8 @@ class CampData(Logger):
         self.size -= 1
     def modifyCamp(self, camp: Camp, newCamp: Camp):
         '''Modify camp from data'''
-        self.camps.remove(camp)
-        self.camps.append(newCamp)
+        index = self.camps.index(camp)
+        self.camps[index] = newCamp
         self.modifiedQueue.append(("modify", newCamp))
 
     def createData(self):

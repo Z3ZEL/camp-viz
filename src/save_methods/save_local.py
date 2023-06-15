@@ -46,13 +46,14 @@ class SaveLocal(SaveMethod):
             data = json.load(json_file)
             # UPDATE DATA
             for (action, camp) in campsToSave:
+                self.logger.print("Saving "+camp.getName())
                 if action == "add":
                     data["camps"].append(camp.toDict())
                 elif action == "remove":
                     data["camps"].remove(camp.toDict())
-                elif action == "update":
+                elif action == "modify":
                     for i in range(len(data["camps"])):
-                        if Camp.isCampSame(data["camps"][i], camp):
+                        if Camp.isCampSame(Camp.fromDict(data["camps"][i]), camp):
                             data["camps"][i] = camp.toDict()
                             break
             data["size"] = len(data["camps"])
