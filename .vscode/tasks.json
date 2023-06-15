@@ -5,11 +5,25 @@
     "tasks": [
         //RUN MAIN PYTHON IN SRC DIRECTORY
         {
-            "label": "Run Main Python",
+            "label": "Run App In Local",
             "type": "shell",
             "command": "python",
             "args": [
                 "${workspaceFolder}/src/main.py"
+            ],
+            "group": {
+                "kind": "build",
+                "isDefault": true
+            }
+        },
+        {
+            "label": "Run App With Database",
+            "type": "shell",
+            "command": "python",
+            "args": [
+                "${workspaceFolder}/src/main.py",
+                "--method",
+                "database"
             ],
             "group": {
                 "kind": "build",

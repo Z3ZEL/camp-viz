@@ -3,7 +3,7 @@ import os
 import sys 
 sys.argv.append('..')
 from util.text_format import color;
-import termios, tty, select
+import termios, tty
 from data_manipulations.data_editor import DataEditor
 
 
@@ -24,6 +24,7 @@ class VisualizerConsole(Visualizer):
         self.selected = 0
         self.state = state.LISTING
         self.editor = DataEditor(campData, verbose=verbose)
+        self.consoleQueue = []
 
     def __print_listing__(self):
         data_camps = self.data.getCamps()
@@ -97,6 +98,11 @@ class VisualizerConsole(Visualizer):
             self.__print_listing__()
         elif self.state == state.EDITING:
             self.__print_editing__()
+
+        #Depile queue
+        while len(self.consoleQueue) != 0:
+            mess = self.consoleQueue.pop()
+            mess()
         
 
 
@@ -114,7 +120,14 @@ class VisualizerConsole(Visualizer):
             # Si l'utilisateur appuie sur Entrée, on sort de la boucle
             if char == '\r' or char == '\n':
                 break
-
+            elif char == '\x7f':
+                # Si l'utilisateur appuie sur la touche de suppression (Backspace/Delete)
+                # On supprime le dernier caractère du texte de l'utilisateur
+                if len(user_input) > 0:
+                    user_input = user_input[:-1]
+                    # Effacer le caractère précédent dans la console
+                    sys.stdout.write('\b \b')
+                    print("",end='', flush=True)
             elif char == '\x03':
                 # Si l'utilisateur appuie sur Ctrl+C, on interrompt le programme
                 raise KeyboardInterrupt()
@@ -187,8 +200,10 @@ class VisualizerConsole(Visualizer):
 
                 self.__edit__(key)
 
-                    
-
+                if key == 's':
+                    code = self.data.saveData()
+                    if code == 0:
+                        self.consoleQueue.append(lambda : self.logger.printAnyway("Modification Saved"))
 
                 # Traitez la touche selon vos besoins
                 # Ici, nous imprimons simplement la touche
