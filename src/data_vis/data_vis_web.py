@@ -37,7 +37,9 @@ class Visualizer(IVisualizer):
             tmp["properties"]["name"] = camp.getName()
             tmp["properties"]["description"] = camp.getDescription()
             tmp["properties"]["tooltip"] = camp.getName()
-            geojson["features"].append(tmp)  
+            geojson["features"].append(tmp) 
+        self.logger.print("Geojson initialized")
+        return geojson
 
     
     ##GET LAYOUT
@@ -49,7 +51,7 @@ class Visualizer(IVisualizer):
                                     id="app-content", className='flex-1 grid grid-rows-1 grid-cols-2', style={"gridTemplateColumns": "4fr 1fr"})],
                                     className="grid grid-rows-2 grid-cols-1 h-screen w-screen",style={"gridTemplateRows": "1fr 6fr"}, id="layout")
           
-        return geojson
+        return geojsonEtienne
     def __get__header__(self):
         return html.Div(id="header", className='flex-none bg-black')
 
