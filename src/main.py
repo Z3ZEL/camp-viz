@@ -1,3 +1,4 @@
+import importlib
 import gpxpy
 import gpxpy.gpx
 import os
@@ -13,12 +14,16 @@ from camp_data import CampData
 gpx_file = open('input/explore.gpx', 'r')
 gpx = gpxpy.parse(gpx_file)
 
-from data_vis.data_vis_console import Visualizer
 
+
+class VIS_PATH:
+    CONSOLE = 'data_vis.data_vis_console'
+    WEB = 'data_vis.data_vis_web'
 
 
 def main(args):
     METHOD="local"
+    VIS=VIS_PATH.CONSOLE
 
     #CHECK VERBOSE OPTIONS
     verbose = False
@@ -32,6 +37,15 @@ def main(args):
             METHOD = "database"
         else:
             print("Invalid method")
+            exit(1)
+    if "--vis" in args:
+        vis = args[args.index("--vis") + 1]
+        if vis == "console":
+            VIS = VIS_PATH.CONSOLE
+        elif vis == "web":
+            VIS = VIS_PATH.WEB
+        else:
+            print("Invalid vis")
             exit(1)
     
     logger = Log(verbose=verbose, header="[MAIN]")
@@ -100,7 +114,7 @@ def main(args):
     # updater.updateFromGpx(gpx)
     
     # data.saveData()
-
+    Visualizer = importlib.import_module(VIS).Visualizer
 
     vis = Visualizer(data, verbose=verbose)
     vis.loop()

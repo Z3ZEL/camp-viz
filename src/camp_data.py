@@ -19,7 +19,9 @@ class Camp():
     def toDict(self):
         '''Return camp as json'''
         return self.__dict__
-
+    def toGeoJSON(self):
+        '''Return camp as geojson'''
+        return {"type":"Feature", "properties":{}, "geometry":{"type":"Point", "coordinates":[self.lon, self.lat]}}
 
     #getters
     def getName(self):
