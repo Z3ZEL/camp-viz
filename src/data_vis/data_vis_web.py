@@ -13,7 +13,7 @@ class Visualizer(IVisualizer):
     app = None
     def __init__(self, campData: CampData, verbose=False):
         super().__init__(campData, verbose)
-        self.app = Dash(__name__, external_scripts=[{'src': 'https://cdn.tailwindcss.com'}], external_stylesheets=['https://cdn.jsdelivr.net/npm/daisyui@3.1.1/dist/full.css'])
+        self.app = Dash(__name__, external_scripts=[{'src': 'https://cdn.tailwindcss.com'}], external_stylesheets=[{'href':'https://cdn.jsdelivr.net/npm/daisyui@3.1.1/dist/full.css', 'rel':'stylesheet', 'type':'text/css'}])
         self.app.layout = self.__get_layout__()
         self.app.title = "Camp Data Visualizer"
         
@@ -23,12 +23,19 @@ class Visualizer(IVisualizer):
         self.app.scripts.config.serve_locally = True
 
         ##INIT CALLBACKS
-        @self.app.callback(Output("camp-info", "children"), [Input("camps", "click_feature")])
-        def __map_click__(feature):
+        @self.app.callback(Output("camp-desc", "children"), [Input("camps", "click_feature")])
+        def __map_click__desc__(feature):
             if feature is not None:
                 return f"{feature['properties']['description']}"
             else:
+                return ""
+        @self.app.callback(Output("camp-name", "children"), [Input("camps", "click_feature")])
+        def __map_click__name__(feature):
+            if feature is not None:
+                return f"{feature['properties']['name']}"
+            else:
                 return "Click a point on the map"
+
     def __get__geojson__(self):
         '''Convert all camp to a geojson object'''
         geojson = {"type":"FeatureCollection", "features":[]}
@@ -53,18 +60,26 @@ class Visualizer(IVisualizer):
           
         return geojsonEtienne
     def __get__header__(self):
-        return html.Div(id="header", className='flex-none bg-black')
+        return html.Div(
+            html.Div([
+                html.Div("Camps",className='stat-title'),
+                html.Div(self.data.getSize(), className='stat-value'),
+                html.Div('Number of camps', className='stat-desc')],
+            className="stat shadow shadow-lg p-4 m-4 bg-base-100 rounded-box flex mx-auto flex-col items-center justify-center w-32"),
+        id="header", className='flex-none w-full')
 
     def __get__information_tab__(self):
-        return html.Div(id="camp-info", className='')
+        return html.Div([
+            html.Div([
+                html.Div("No point selected", className='card-title', id="camp-name"),
+                html.Div("Click a point on the map", className='', id="camp-desc"),
+            ], className='card shadow m-6 p-6'),
+            html.Div("Edit", className='btn m-6 flex w-32 mx-auto btn-outline btn-info')
+            ], id="camp-info", className='')
     def __get__map__(self):
         geodata = dl.GeoJSON(data=self.__get__geojson__(),id="camps")
         map = dl.Map(children=[dl.TileLayer(),geodata], className="h-full w-full", id="map")        
         return html.Div(map, className='w-full h-full')
-
-
-  
-
 
     def loop(self) -> bool:
         #run dash app
