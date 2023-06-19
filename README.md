@@ -15,8 +15,7 @@
   - [Contributing](#contributing)
   - [License](#license)
 
-
-[![Build Status](https://img.shields.io/travis/username/application-name.svg)](https://travis-ci.org/username/application-name)
+[![Build Status](https://app.travis-ci.com/Z3ZEL/camp-viz.svg?branch=master)](https://app.travis-ci.com/Z3ZEL/camp-viz)
 [![License](https://img.shields.io/badge/license-MIT-blue.svg)](https://opensource.org/licenses/MIT)
 
 Camp Visualizer is a Python application that enables users to extract and store waypoint data from GPX files. It provides a convenient way to process GPX files, extract specific points of interest, and store them either locally or in a database. Additionally, Camp Visualizer offers a web application interface that allows users to visualize the extracted waypoints and add comments to them.
