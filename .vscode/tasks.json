@@ -5,12 +5,12 @@
     "tasks": [
         //RUN MAIN PYTHON IN SRC DIRECTORY
         {
-            "label": "Run App In Local",
+            "label": "Run In Local",
             "type": "shell",
             "command": "python",
             "args": [
                 "${workspaceFolder}/src/main.py",
-                "--vis",
+                "-d",
                 "web"
             ],
             "group": {
@@ -26,13 +26,31 @@
                 "${workspaceFolder}/src/main.py",
                 "--method",
                 "database",
-                "--vis",
+                "-d",
                 "web"
             ],
             "group": {
                 "kind": "build",
                 "isDefault": true
             }
+        },
+        //UPDATE DATABASE WITH GPX ASK GPX PATH
+        {
+            "label": "Update Database With GPX",
+            "type": "shell",
+            "command": "python",
+            "args": [
+                "${workspaceFolder}/src/main.py",
+                "--method",
+                "${input:save-method}",
+                "-u",
+                "${input:GPX-Path}",
+            ],
+            "group": {
+                "kind": "build",
+                "isDefault": true
+            }
+
         },
         //UPDATE REQUIREMENTS
         {
@@ -56,7 +74,7 @@
             "command": "python",
             "args": [
                 "${workspaceFolder}/src/main.py",
-                "--vis",
+                "-d",
                 "web",
                 "-v"
             ],
@@ -65,5 +83,21 @@
                 "isDefault": true
             }
         },
+    ],
+    "inputs": [
+        {
+            "id": "GPX-Path",
+            "type": "promptString",
+            "description": "GPX Path",
+        },
+        {
+            "id": "save-method",
+            "type": "pickString",
+            "description": "Save Method",
+            "options": [
+                "database",
+                "local"
+            ]
+        }
     ]
 }

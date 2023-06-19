@@ -149,9 +149,9 @@ class Visualizer(IVisualizer):
         return info
     def __get__map__(self):
         geodata = dl.GeoJSON(data=self.__get__geojson__(),id="camps")
-        self.map = dl.Map(children=[dl.TileLayer(updateWhenZooming=True),geodata], center=[self.data.getCamps()[0].getLat(), self.data.getCamps()[0].getLon()],zoom=8,className="h-full w-full")  
+        self.map = dl.Map(children=[dl.TileLayer(url="https://tile.openstreetmap.org/{z}/{x}/{y}.png"),geodata], center=[self.data.getCamps()[0].getLat(), self.data.getCamps()[0].getLon()],zoomControl=False,zoom=5, style={ 'height': '80vh', 'width': '100%', 'margin': "auto", 'display': 'block'})   
             
-        return html.Div(self.map, className='w-full h-full')
+        return html.Div(self.map, className='w-full h-full object-fit p-2 shadow shadow-lg rounded-box flex items-center justify-center')
 
     def loop(self) -> bool:
         #run dash app
