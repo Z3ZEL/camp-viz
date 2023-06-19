@@ -44,7 +44,12 @@ class Visualizer(IVisualizer):
             else:
                 self.selected_camp = None
                 return "Click a point on the map"
-
+    def __get__number__without_desc__(self):
+        n = 0
+        for camp in self.data.getCamps():
+            if camp.getDescription() == "":
+                n += 1
+        return n
     def __get__geojson__(self):
         '''Convert all camp to a geojson object'''
         geojson = {"type":"FeatureCollection", "features":[]}
@@ -65,20 +70,28 @@ class Visualizer(IVisualizer):
     ##GET LAYOUT
     def __get_layout__(self):
         #append camp
-        return html.Div([self.__get__header__(), 
+        return html.Div([html.Div(self.__get__header__(),id="header"), 
                          html.Div([html.Div(self.__get__map__(), id="map"),
                                     self.__get__information_tab__()],
                                     id="app-content", className='flex-1 grid grid-rows-1 grid-cols-2', style={"gridTemplateColumns": "4fr 1fr"})],
-                                    className="grid grid-rows-2 grid-cols-1 h-screen w-screen",style={"gridTemplateRows": "1fr 6fr"})
+                                    className="grid grid-rows-2 grid-cols-1 h-screen w-screen",style={"gridTemplateRows": "1fr 5fr"})
           
     def __get__header__(self):
-        return html.Div(
+        return html.Div([
             html.Div([
                 html.Div("Camps",className='stat-title'),
                 html.Div(self.data.getSize(), className='stat-value'),
                 html.Div('Number of camps', className='stat-desc')],
             className="stat shadow shadow-lg p-4 m-4 bg-base-100 rounded-box flex mx-auto flex-col items-center justify-center w-32"),
-        id="header", className='flex-none w-full')
+            html.Div([
+                html.Div("Empty camps",className='stat-title'),
+                html.Div(
+                    html.Div(self.__get__number__without_desc__(), style={'--value':str(len(self.data.getCamps()) - self.__get__number__without_desc__())}, className='radial-progress text-error'),
+            className='stat-value'),
+                html.Div('Number of camps without description', className='stat-desc')],
+            className="stat shadow shadow-lg p-4 m-4 bg-base-100 rounded-box flex mx-auto flex-col items-center justify-center w-64 h-32")
+            ]
+        ,className='stats flex-none w-full')
 
     def __get__information_tab__(self):
         self.logger.print("State : " + str(self.state))
@@ -89,7 +102,7 @@ class Visualizer(IVisualizer):
                 html.Label("Description", className='label'),
                 dcc.Textarea(value='', className='textarea textarea-bordered', placeholder="", id='form-description'),
                 ], className='form-control'),
-                html.Button("Save", className='btn m-6 flex w-32 mx-auto btn-outline btn-info', id='form-button'),
+                html.Button("Save", className='btn m-6 flex w-32 mx-auto btn-outline btn-alert', id='form-button'),
             ])
         info = html.Div([
             html.Div([
@@ -103,7 +116,7 @@ class Visualizer(IVisualizer):
         
         #VISUAL APPARENCE OF EDIT BUTTON  
         #FORM CALLBACKS
-        @self.app.callback([Output('camp-edit-form','hidden'),Output("edit-button","children")], [Input('edit-button','n_clicks')])
+        @self.app.callback([Output('camp-edit-form','hidden', allow_duplicate=True),Output("edit-button","children", allow_duplicate=True)], [Input('edit-button','n_clicks')], prevent_initial_call=True)
         def __edit_button_toggle_form__(n_clicks):
             if (n_clicks is not None )and self.selected_camp is not None:
                 if self.state == Vis_State.VIEW:
@@ -125,7 +138,13 @@ class Visualizer(IVisualizer):
             
 
         @self.app.callback(
-                        [Output('form-output','hidden'),Output('form-output','children'), Output('map','children')],
+                        [
+                        Output('camp-edit-form','hidden'),
+                        Output('edit-button','children'),    
+                        Output('form-output','hidden'),
+                        Output('form-output','children'),
+                        Output('camps','data'),
+                        Output('header', 'children')],
                         [Input('form-button','n_clicks')],
                         [State('form-name', 'value'), State('form-description','value')],
                     )
@@ -140,11 +159,11 @@ class Visualizer(IVisualizer):
                 self.data.modifyCamp(self.selected_camp, Camp.fromDict(new_camp))
                 code = self.data.saveData()
                 if code == -1:
-                    return [False,'There was an error during saving data', self.__get__map__()]
+                    return [True, "Edit",False,'There was an error during saving data', self.__get__geojson__(), self.__get__header__()]
                 else:
-                    return [False, 'Saved !', self.__get__map__()]
+                    return [True, "Edit", False, 'Saved !', self.__get__geojson__(), self.__get__header__()]
             else:
-                return [True,'No camp to save', self.__get__map__()]
+                return [True,"Edit",True,'No camp to save', self.__get__geojson__(), self.__get__header__()]
     
 
         return info
