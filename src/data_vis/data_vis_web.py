@@ -1,3 +1,4 @@
+import dotenv
 from data_vis.data_vis import IVisualizer
 
 import sys
@@ -54,6 +55,7 @@ class Visualizer(IVisualizer):
             tmp["properties"]["description"] = camps[i].getDescription()
             tmp["properties"]["tooltip"] = camps[i].getName()
             tmp["properties"]["index"] = i
+            
             geojson["features"].append(tmp) 
 
         self.logger.print("Geojson initialized")
@@ -123,10 +125,9 @@ class Visualizer(IVisualizer):
             
 
         @self.app.callback(
-                        [Output('form-output','children'), Output('map','children')],
+                        [Output('form-output','hidden'),Output('form-output','children'), Output('map','children')],
                         [Input('form-button','n_clicks')],
                         [State('form-name', 'value'), State('form-description','value')],
-                        prevent_initial_call=True
                     )
         def __form_event_edit__(n_clicks, new_name, new_description):
             
@@ -139,17 +140,41 @@ class Visualizer(IVisualizer):
                 self.data.modifyCamp(self.selected_camp, Camp.fromDict(new_camp))
                 code = self.data.saveData()
                 if code == -1:
-                    return ['There was an error during saving data', self.__get__map__()]
+                    return [False,'There was an error during saving data', self.__get__map__()]
                 else:
-                    return ['Saved !', self.__get__map__()]
+                    return [False, 'Saved !', self.__get__map__()]
             else:
-                return ['No camp to save', self.__get__map__()]
+                return [True,'No camp to save', self.__get__map__()]
     
 
         return info
     def __get__map__(self):
         geodata = dl.GeoJSON(data=self.__get__geojson__(),id="camps")
-        self.map = dl.Map(children=[dl.TileLayer(url="https://tile.openstreetmap.org/{z}/{x}/{y}.png"),geodata], center=[self.data.getCamps()[0].getLat(), self.data.getCamps()[0].getLon()],zoomControl=False,zoom=5, style={ 'height': '80vh', 'width': '100%', 'margin': "auto", 'display': 'block'})   
+
+        tile_url = None
+        attribution = None
+        tile_size = 256
+        #Get IGN KEY from env
+        env = dotenv.dotenv_values(".env")
+        
+        if "IGN_KEY" in env.keys():
+            tile_url = ("https://wxs.ign.fr/CLEF/geoportail/wmts?" +
+                        "&REQUEST=GetTile&SERVICE=WMTS&VERSION=1.0.0" +
+                        "&STYLE=normal" +
+                        "&TILEMATRIXSET=PM" +
+                        "&FORMAT=image/png"+
+                        "&LAYER=GEOGRAPHICALGRIDSYSTEMS.PLANIGNV2"+
+                        "&TILEMATRIX={z}" +
+                        "&TILEROW={y}" +
+                        "&TILECOL={x}")
+            tile_url = tile_url.replace("CLEF", env["IGN_KEY"])
+            tile_size = 256
+            attribution = "© IGN-F/Geoportail"
+        else:
+            tile_url = ("https://tile.openstreetmap.org/{z}/{x}/{y}.png")
+            attribution = "Map data © OpenStreetMap contributors"
+
+        self.map = dl.Map(children=[dl.TileLayer(url=tile_url, minZoom=0, maxZoom=18, attribution=attribution, tileSize=tile_size),geodata], center=[self.data.getCamps()[0].getLat(), self.data.getCamps()[0].getLon()],zoomControl=False,zoom=5, style={ 'height': '80vh', 'width': '100%', 'margin': "auto", 'display': 'block'})   
             
         return html.Div(self.map, className='w-full h-full object-fit p-2 shadow shadow-lg rounded-box flex items-center justify-center')
 
