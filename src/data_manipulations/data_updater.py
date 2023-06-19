@@ -23,10 +23,11 @@ class DataUpdater(Logger):
             gpx (gpxpy.gpx.GPX): GPX object
 
         Returns:
-            int: 0 if updated, 1 if already up to date, -1 if error
+            int: X if updated and X indicate number of new points, 0 if already up to date, -1 if error
     
         '''
         upToDate = True
+        n=0
         for waypoint in gpx.waypoints:
             camp = Camp(waypoint.name, waypoint.description, waypoint.latitude, waypoint.longitude, waypoint.elevation)
             alreadyExists = False
@@ -37,10 +38,11 @@ class DataUpdater(Logger):
             if not alreadyExists:
                 self.logger.print("Adding camp " + camp.name)
                 self.data.addCamp(camp)
+                n += 1
                 upToDate = False
         if upToDate:
-            self.logger.printAnyway("Data is already up to date")
-            return 1
-        else:
+            self.logger.print("Data is already up to date")
             return 0
+        else:
+            return n
         
