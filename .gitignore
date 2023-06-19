@@ -9,5 +9,6 @@ cookie.json
 */.pytest_cache/
 */.mypy_cache/
 */.pytype/
-input/*
+input/
+data/
 .env
