@@ -105,10 +105,10 @@ def main(args):
     load_dotenv()
 
 
-    host = os.getenv("PGHOST")
-    database = os.getenv("PGDATABASE")
-    user = os.getenv("PGUSER")
-    password = os.getenv("PGPASSWORD")
+    host = os.getenv("PGHOST") if os.getenv("PGHOST") else "localhost"
+    database = os.getenv("PGDATABASE") if os.getenv("PGDATABASE") else "camp_data"
+    user = os.getenv("PGUSER") if os.getenv("PGUSER") else "postgres"
+    password = os.getenv("PGPASSWORD") if os.getenv("PGPASSWORD") else "postgres"
     
 
     #PRINT ENVIRONMENT VARIABLES
