@@ -5,13 +5,15 @@
     "tasks": [
         //RUN MAIN PYTHON IN SRC DIRECTORY
         {
-            "label": "Run In Local",
+            "label": "Run",
             "type": "shell",
             "command": "python",
             "args": [
                 "${workspaceFolder}/src/main.py",
                 "-d",
-                "web"
+                "web",
+                "-m",
+                "${input:save-method}"
             ],
             "group": {
                 "kind": "build",
@@ -19,15 +21,15 @@
             }
         },
         {
-            "label": "Run App With Database",
+            "label": "Run Console",
             "type": "shell",
             "command": "python",
             "args": [
                 "${workspaceFolder}/src/main.py",
                 "--method",
-                "database",
+                "${input:save-method}",
                 "-d",
-                "web"
+                "console"
             ],
             "group": {
                 "kind": "build",
@@ -69,13 +71,13 @@
         },
         //RUN MAIN PYTHON IN DEV MODE
         {
-            "label": "Run Main Python in Dev Mode",
+            "label": "Run in Dev Mode",
             "type": "shell",
             "command": "python",
             "args": [
                 "${workspaceFolder}/src/main.py",
                 "-d",
-                "web",
+                "${input:save-method}",
                 "-v"
             ],
             "group": {
