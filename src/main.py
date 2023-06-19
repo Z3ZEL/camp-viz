@@ -160,7 +160,14 @@ def main(args):
             data.createData()
 
     if GPX:
-        gpx_file = open(GPX_FILE_PATH, 'r')
+        try:
+            gpx_file = open(GPX_FILE_PATH, 'r')
+        except (FileNotFoundError) as e:
+            logger.error('File not found')
+            exit(1)
+
+
+
         gpx = gpxpy.parse(gpx_file)
         updater = DataUpdater(data, verbose=verbose)
         output = updater.updateFromGpx(gpx)
