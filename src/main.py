@@ -144,7 +144,8 @@ def main(args):
             else:
                 logger.error("Connection not established")
         except (psycopg2.Error) as e:
-            pass
+            logger.error(e)
+            exit(1)
         method = SaveDatabase(conn,verbose=verbose)
 
     
