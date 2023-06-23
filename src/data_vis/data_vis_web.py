@@ -193,7 +193,13 @@ class Visualizer(IVisualizer):
             tile_url = ("https://tile.openstreetmap.org/{z}/{x}/{y}.png")
             attribution = "Map data © OpenStreetMap contributors"
 
-        self.map = dl.Map(children=[dl.TileLayer(url=tile_url, minZoom=0, maxZoom=18, attribution=attribution, tileSize=tile_size),geodata], center=[self.data.getCamps()[0].getLat(), self.data.getCamps()[0].getLon()],zoomControl=False,zoom=5, style={ 'height': '80vh', 'width': '100%', 'margin': "auto", 'display': 'block'})   
+        center = []
+        if self.data.getCamps() is not None and len(self.data.getCamps()) > 0:
+            center = [self.data.getCamps()[0].getLat(), self.data.getCamps()[0].getLon()]
+        else:
+            center = [0,0]
+
+        self.map = dl.Map(children=[dl.TileLayer(url=tile_url, minZoom=0, maxZoom=18, attribution=attribution, tileSize=tile_size),geodata], center=center,zoomControl=False,zoom=5, style={ 'height': '80vh', 'width': '100%', 'margin': "auto", 'display': 'block'})   
             
         return html.Div(self.map, className='w-full h-full object-fit p-2 shadow shadow-lg rounded-box flex items-center justify-center')
 
