@@ -96,8 +96,8 @@ PGUSER=''
 PGPASSWORD=''
 PGPORT=''
 
-HOST='0.0.0.0'
-PORT='8080'
+WEB_HOST='0.0.0.0'
+WEB_PORT='8080'
 
 IGN_KEY="decouverte"
 ```

@@ -2,6 +2,7 @@ import dotenv
 from data_vis.data_vis import IVisualizer
 
 import sys
+import os
 sys.argv.append('..')
 from camp_data import CampData, Camp
 
@@ -205,7 +206,7 @@ class Visualizer(IVisualizer):
 
     def loop(self) -> bool:
         #run dash app
-        self.app.run(debug=True)
+        self.app.run(host= os.getenv('WEB_HOST','127.0.0.1'),port=os.getenv('WEB_PORT','8050'), debug=True)
         return True
     
     
