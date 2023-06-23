@@ -14,7 +14,7 @@ class Log:
         print(message)
     def error(self, message):
         '''Print error with red color'''
-        print("\033[91m" + "[ERROR] " + message + "\033[0m")
+        print("\033[91m" + "[ERROR] " + str(message) + "\033[0m")
 class Logger:
     def __init__(self, verbose=False,header="[LOG]"):
         self.verbose = verbose
