@@ -78,6 +78,8 @@ class Visualizer(IVisualizer):
                                     className="grid grid-rows-2 grid-cols-1 h-screen w-screen",style={"gridTemplateRows": "1fr 5fr"})
           
     def __get__header__(self):
+        remaining_without_desc = ((len(self.data.getCamps()) - self.__get__number__without_desc__()) / len(self.data.getCamps())) * 100;
+        radial_color = 'text-error' if remaining_without_desc < 100.0 else 'text-success'
         return html.Div([
             html.Div([
                 html.Div("Camps",className='stat-title'),
@@ -87,7 +89,7 @@ class Visualizer(IVisualizer):
             html.Div([
                 html.Div("Empty camps",className='stat-title'),
                 html.Div(
-                    html.Div(self.__get__number__without_desc__(), style={'--value':str(len(self.data.getCamps()) - self.__get__number__without_desc__())}, className='radial-progress text-error'),
+                    html.Div(self.__get__number__without_desc__(), style={'--value':str(remaining_without_desc)}, className=f'radial-progress {radial_color}'),
             className='stat-value'),
                 html.Div('Number of camps without description', className='stat-desc')],
             className="stat shadow shadow-lg p-4 m-4 bg-base-100 rounded-box flex mx-auto flex-col items-center justify-center w-64 h-32")
