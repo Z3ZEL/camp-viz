@@ -78,8 +78,13 @@ class Visualizer(IVisualizer):
                                     className="grid grid-rows-2 grid-cols-1 h-screen w-screen",style={"gridTemplateRows": "1fr 5fr"})
           
     def __get__header__(self):
-        remaining_without_desc = ((len(self.data.getCamps()) - self.__get__number__without_desc__()) / len(self.data.getCamps())) * 100;
-        radial_color = 'text-error' if remaining_without_desc < 100.0 else 'text-success'
+        remaining_without_desc = 100
+        radial_color = 'text-success'
+        if(len(self.data.getCamps()) != 0):
+            remaining_without_desc = ((len(self.data.getCamps()) - self.__get__number__without_desc__()) / len(self.data.getCamps())) * 100;
+            radial_color = 'text-error' if remaining_without_desc < 100.0 else 'text-success'
+
+
         return html.Div([
             html.Div([
                 html.Div("Camps",className='stat-title'),
